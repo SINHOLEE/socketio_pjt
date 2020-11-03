@@ -20,13 +20,14 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
   <script src="/socket.io/socket.io.js"></script>
   <script>
+  var socket = io();
   $(function(){
     // socket.io 서버에 접속한다
-    var socket = io();
 
     // 서버로 자신의 정보를 전송한다.
     socket.emit("login", {
       // name: "ungmo2",
+      
       name: makeRandomName(),
       userid: "ungmo2@gmail.com"
     });
@@ -48,6 +49,8 @@
     $("form").submit(function(e) {
       e.preventDefault();
       var $msgForm = $("#msgForm");
+      console.log('socket.name');
+      console.log(socket);
       console.log($msgForm.val());
 
       // 서버로 메시지를 전송한다.
