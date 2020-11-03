@@ -20,44 +20,11 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
   <script src="/socket.io/socket.io.js"></script>
   <script>
-  var socket = io();
-  $(function(){
-    // socket.io 서버에 접속한다
-
-    // 서버로 자신의 정보를 전송한다.
-    socket.emit("login", {
-      // name: "ungmo2",
-      
-      name: makeRandomName(),
-      userid: "ungmo2@gmail.com"
-    });
-
-    // 서버로부터의 메시지가 수신되면
-    socket.on("login", function(data) {
-      console.log("logined");
-      $("#chatLogs").append("<div><strong>" + data + "</strong> has joined</div>");
-    });
-
-    // 서버로부터의 메시지가 수신되면
-    socket.on("chat", function(data) {
-      console.log("chated");
-      console.log(data);
-      $("#chatLogs").append("<div>" + data.msg + " : from <strong>" + data.from.name + "</strong></div>");
-    });
-
-    // Send 버튼이 클릭되면
-    $("form").submit(function(e) {
-      e.preventDefault();
-      var $msgForm = $("#msgForm");
-      console.log('socket.name');
-      console.log(socket);
-      console.log($msgForm.val());
-
-      // 서버로 메시지를 전송한다.
-      socket.emit("chat", { msg: $msgForm.val() });
-      $msgForm.val("");
-    });
-
+    const socket = io();
+    const chatLogs = document.getElementById('chatLogs');
+    const form = document.querySelector('form');
+    const msgForm = document.getElementById('msgForm');
+    const myName = makeRandomName();
     function makeRandomName(){
       var name = "";
       var possible = "abcdefghijklmnopqrstuvwxyz";
@@ -66,7 +33,56 @@
       }
       return name;
     }
-  });
-  </script>
+   
+    const init = () => {
+    // socket.io 서버에 접속한다
+
+    // 서버로 자신의 정보를 전송한다.
+      socket.emit("login", {
+        // name: "ungmo2",
+        
+        name: myName,
+        userid: "ungmo2@gmail.com"
+      });
+
+    // 서버로부터의 메시지가 수신되면
+    socket.on("login", function(data) {
+      console.log("logined");
+      chatLogs.innerHTML += "<div><strong>" + data + "</strong> has joined</div>";
+    });
+
+    // 서버로부터의 메시지가 수신되면
+    socket.on("chat", function(data) {
+      console.log("chated");
+      console.log(data);
+    });
+
+    const submitHandler = (e) => {
+      e.preventDefault();
+      if (!msgForm.value){
+        return false
+      }
+
+      // 서버로 메시지를 전송한다.
+      payload = {
+        name: myName,
+        msg: msgForm.value,
+        created_at: Date.now()
+      }
+      socket.emit("chat", payload);
+      msgForm.value = "";
+    }
+
+    const keydownHandler = (e) => {
+      console.log(e);
+      console.log(e.target.value);
+    }
+    msgForm.addEventListener('keydown', keydownHandler);
+    form.addEventListener('submit', submitHandler);
+   
+  }
+  init();
+
+   </script>
 </body>
 </html>

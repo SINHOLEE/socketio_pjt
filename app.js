@@ -2,6 +2,7 @@ const app = require("express")();
 const server = require("http").createServer(app);
 
 const io = require('socket.io')(server);
+const db = require('./db');
 
 app.get('/', function(req, res){
 	res.sendFile(__dirname+'/index.html');
@@ -25,18 +26,11 @@ io.on('connection', function(socket) {
 
   // 클라이언트로부터의 메시지가 수신되면
   socket.on('chat', function(data) {
-    console.log('Message from %s: %s', socket.name, data.msg);
-
-    var msg = {
-      from: {
-        name: socket.name,
-        userid: socket.userid
-      },
-      msg: data.msg
-    };
-    console.log(msg);
+    
+    db.create(data);
     // 메시지를 전송한 클라이언트를 제외한 모든 클라이언트에게 메시지를 전송한다
-    socket.broadcast.emit('chat', msg);
+    // socket.broadcast.emit('chat', msg);
+    socket.emit('chat', data);
 
     // 메시지를 전송한 클라이언트에게만 메시지를 전송한다
     // socket.emit('s2c chat', msg);
