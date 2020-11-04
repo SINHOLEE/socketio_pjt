@@ -2,11 +2,9 @@
 
 var _ = require('lodash');
 var util = require('util');
-var events = require('events').EventEmitter;
 
 // EventImitter를 상속하는 MyDatabase 클래스를 정의한다
 function MyDatabase() {
-  events.call(this);
   /*
   {
       name : 'name',
@@ -14,9 +12,8 @@ function MyDatabase() {
       created_at: '생성시간',
   }
   */
-  this.db = [];
+  this.db = [];  
 }
-util.inherits(MyDatabase, events);
 
 // 데이터베이스 조회 메쏘드
 MyDatabase.prototype.findAll = function () {
@@ -27,7 +24,6 @@ MyDatabase.prototype.findAll = function () {
 MyDatabase.prototype.create = function (newThing) {
     console.log('db create')
   this.db.push(newThing);
-  this.emit('create', newThing);
   return newThing;
 };
 
@@ -36,7 +32,6 @@ MyDatabase.prototype.findAllBy = function (name) {
   _.filter(this.db, function (thing) {
     return thing.name === name;
   });
-  this.emit('findAllBy', name);
   return name;
 };
 

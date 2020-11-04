@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <title>Socket.io Chat Example</title>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 </head>
 <body>
@@ -13,17 +14,19 @@
         <label for="msgForm">Message: </label>
         <input type="text" class="form-control" id="msgForm">
       </div>
-      <button type="submit" class="btn btn-primary">Send</button>
+      <button type="submit" id="send" class="btn btn-primary">Send</button>
+      <button type="button" id="find-all" class="btn btn-primary">findAll</button>
     </form>
     <div id="chatLogs"></div>
   </div>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
   <script src="/socket.io/socket.io.js"></script>
-  <script>
+  <script type="module">
     const socket = io();
     const chatLogs = document.getElementById('chatLogs');
     const form = document.querySelector('form');
     const msgForm = document.getElementById('msgForm');
+    const findAllBtn = document.getElementById('find-all'); 
     const myName = makeRandomName();
     function makeRandomName(){
       var name = "";
@@ -56,7 +59,31 @@
       console.log("chated");
       console.log(data);
     });
-
+    function getTimeStamp() {
+      var d = new Date()
+      var s =
+        leadingZeros(d.getFullYear(), 4) + '-' +
+        leadingZeros(d.getMonth() + 1, 2) + '-' +
+        leadingZeros(d.getDate(), 2) + ' ' +
+    
+        leadingZeros(d.getHours(), 2) + ':' +
+        leadingZeros(d.getMinutes(), 2) + ':' +
+        leadingZeros(d.getSeconds(), 2);
+    
+      return s;
+    }
+    
+    function leadingZeros(n, digits) {
+      var zero = '';
+      n = n.toString();
+    
+      if (n.length < digits) {
+        for (let i = 0; i < digits - n.length; i++)
+          zero += '0';
+      }
+      return zero + n;
+    }    
+    
     const submitHandler = (e) => {
       e.preventDefault();
       if (!msgForm.value){
@@ -64,10 +91,10 @@
       }
 
       // 서버로 메시지를 전송한다.
-      payload = {
+      const payload = {
         name: myName,
         msg: msgForm.value,
-        created_at: Date.now()
+        created_at: getTimeStamp()
       }
       socket.emit("chat", payload);
       msgForm.value = "";
@@ -77,9 +104,20 @@
       console.log(e);
       console.log(e.target.value);
     }
+
+    const findAllBtnHandler = (e) => {
+      axios({
+        method: 'get',
+        url: 'http://localhost:3000/api/findall',
+        respnseType: 'json'
+      }).then((res)=>{
+        console.log(res.data);
+      })
+
+    }
     msgForm.addEventListener('keydown', keydownHandler);
     form.addEventListener('submit', submitHandler);
-   
+    findAllBtn.addEventListener('click', findAllBtnHandler);
   }
   init();
 
